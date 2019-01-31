@@ -1,0 +1,24 @@
+{
+  "name": "notebook",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "test": "SET NODE_ENV=test&&mocha server/**/*test.js --timeout=3000"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "mongodb": "^3.1.13",
+    "mongoose": "^5.4.7",
+    "validator": "^10.11.0"
+  },
+  "devDependencies": {
+    "expect": "^24.0.0",
+    "mocha": "^5.2.0",
+    "supertest": "^3.4.2"
+  }
+}
