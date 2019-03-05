@@ -52,7 +52,7 @@ const populateNotes = ((done)=>{
 
 const populateUsers = ((done)=>{
     Users.remove({}).then(()=>{
-        Users.insertMany(Users);
+        Users.insertMany(users);
     }).then(()=>done());
 });
 
