@@ -1,6 +1,8 @@
 require('./config/config');
 const express = require('express');
 const bodyparser = require('body-parser');
+const _ = require('lodash');
+const {ObjectID} = require('mongodb');
 
 var {mongoose} = require('./db/mongoose');
 var {Notes} = require('./models/notes');
@@ -27,9 +29,37 @@ app.post('/addNote', (req, res) =>{
     });
 });
 
-app.patch('/editNote', (req, res)=>{
-    
-})
+app.patch('/editNote/:id', (req, res)=>{
+    //get id
+    var id = req.params.id;
+
+    var body = _.pick(req.body, ['author', 'title', 'text', 'date' ]);
+
+    //save new body replacing current note
+    Notes.findByIdAndUpdate({_id: id}, {$set: body}, {new: true}).then((note)=>{
+        if(!note){
+            return res.status(400).send();
+        } 
+
+        res.send({note});
+    }).catch((e)=>{res.status(400).send(e)});
+});
+
+app.delete('/deleteNote/:id', (req, res) =>{
+    var id = req.params.id;
+
+    if(!ObjectID.isValid(id)){
+        return res.status(400).send();
+    }
+
+    Notes.findByIdAndRemove({_id: id}).then((note)=>{
+        if(!note){
+            return res.status(400).send();
+        }
+
+        res.status(200).send();
+    }).catch((e)=>res.status(400).send(e));
+});
 
 app.listen(port, () =>{
     console.log('Started at port: ', port);

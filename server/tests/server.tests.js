@@ -48,3 +48,64 @@ describe('POST /note', ()=>{
             });
     });
 });
+
+describe('PATCH /editNote/:id', ()=>{
+    it('should update note', (done)=>{
+        var id = notes[1]._id.toHexString();
+        var originalText = notes[1].text;
+        var originalTitle = notes[1].title;
+
+        request(app)
+            .patch(`/editNote/${id}`)
+            .send({text: "Text to replace the text used to be", title: "Changed title"})
+            .expect(200)
+            .expect((res)=>{
+                expect(res.body.note.text).not.toEqual(originalText);
+                expect(res.body.note.title).not.toEqual(originalTitle);
+            })
+            .end(done);
+    });
+
+    it('should not update a note', (done)=>{
+        var id = notes[0]._id.toHexString() + '1';
+
+        request(app)
+            .patch(`/editNote/${id}`)
+            .send({text: "Text to replace the text used to be", title: "Changed title"})
+            .expect(400)
+            .end(done);
+    });
+});
+
+describe('DELETE /deleteNote/:id', ()=>{
+    it('should delete note with given id', (done)=>{
+        var id = notes[1]._id.toHexString();
+
+        request(app)
+            .delete(`/deleteNote/${id}`)
+            .expect(200)
+            .expect((res)=>{
+                //expect(res.body.note._id).toBe(id);
+            })
+            .end((err, res)=>{
+                if(err){
+                    return done(err);
+                }
+
+                Notes.findById(id).then((note)=>{
+                    expect(note).toBeFalsy();
+                    done();
+                }).catch((e)=>done(e));
+            });
+    });
+
+    it('should not delete note with given wrong id', (done)=>{
+        var id = notes[1]._id.toHexString() + '1';
+
+        request(app)
+            .delete(`/deleteNote/${id}`)
+            .expect(400)
+            .end(done)
+    });
+});
+
