@@ -14,6 +14,8 @@ var port = process.env.PORT || 3000;
 app.use(bodyparser.json()); //provides POST operations + json request body support
 
 //app requests
+
+//notes
 app.post('/addNote', (req, res) =>{
     var note = new Notes({
         title: req.body.title,
@@ -60,6 +62,96 @@ app.delete('/deleteNote/:id', (req, res) =>{
         res.status(200).send();
     }).catch((e)=>res.status(400).send(e));
 });
+
+app.get('/loadNotes', (req, res)=>{
+    Notes.find({}).then((notes)=>{
+        res.send({notes});
+    }, (e) =>{
+        res.status(400).send(e);
+    });
+});
+
+app.get('/loadNote/:id', (req, res)=>{
+    var id = req.params.id;
+
+    if(!ObjectID.isValid(id)){
+        return res.status(404).send();
+    }
+
+    Notes.findOne({_id: id}).then((note)=>{
+        if (!note){
+            return res.status(404).send({});
+        } 
+
+        res.send({note});
+    }).catch((e)=> res.status(400).send(e));
+});
+
+//users
+app.post('/addUser', (req, res) =>{
+    var body = _.pick(req.body, ['nick', 'email', 'password']);
+    var user = new Users(body);
+
+    user.save().then((user)=>{
+        res.send(user);
+    }, (e)=>{
+        res.status(400).send(e);
+    });
+});
+
+app.patch('/editUser/:id', (req, res)=>{
+    //get id
+    var id = req.params.id;
+
+    var body = _.pick(req.body, ['nick', 'email', 'password']);
+
+    //save new body replacing current note
+    Users.findByIdAndUpdate({_id: id}, {$set: body}, {new: true}).then((user)=>{
+        if(!user){
+            return res.status(400).send();
+        } 
+
+        res.send({user});
+    }).catch((e)=>{res.status(400).send(e)});
+});
+
+app.delete('/deleteUser/:id', (req, res) =>{
+    var id = req.params.id;
+
+    if(!ObjectID.isValid(id)){
+        return res.status(400).send();
+    }
+
+    Users.findByIdAndRemove({_id: id}).then((user)=>{
+        if(!user){
+            return res.status(400).send();
+        }
+
+        res.status(200).send();
+    }).catch((e)=>res.status(400).send(e));
+});
+
+app.post('/user/login', (req, res)=>{
+
+});
+
+// app.get('/loadUser/:id', (req, res)=>{
+//     var id = req.params.id;
+
+//     if(!ObjectID.isValid(id)){
+//         return res.status(404).send();
+//     }
+
+//     Notes.findOne({_id: id}).then((note)=>{
+//         if (!note){
+//             return res.status(404).send({});
+//         } 
+
+//         res.send({note});
+//     }).catch((e)=> res.status(400).send(e));
+// });
+
+
 
 app.listen(port, () =>{
     console.log('Started at port: ', port);

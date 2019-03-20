@@ -11,7 +11,7 @@ beforeEach(populateNotes);
 beforeEach(populateUsers);
 
 //tests begin here
-describe('POST /note', ()=>{
+describe('POST /addNote', ()=>{
     it('should post a note to db and send result back', (done)=>{
         var note = {
             title: "Testing",
@@ -106,6 +106,41 @@ describe('DELETE /deleteNote/:id', ()=>{
             .delete(`/deleteNote/${id}`)
             .expect(400)
             .end(done)
+    });
+});
+
+describe('GET /loadNotes', ()=>{
+    it('should load all notes', (done)=>{
+        request(app)
+            .get('/loadNotes')
+            .expect(200)
+            .expect((res)=>{
+                expect(res.body.notes.length).toBe(2);
+            })
+            .end(done);
+    });
+});
+
+describe('GET /loadNote/:id', ()=>{
+    it('should load note with valid id', (done)=>{
+        var id = notes[0]._id.toHexString();
+
+        request(app)
+            .get(`/loadNote/${id}`)
+            .expect(200)
+            .expect((res)=>{
+                expect(res.body.note.text).toBe(notes[0].text);
+            })
+            .end(done);
+    });
+
+    it('should not load note with invalid id', (done)=>{
+        var id = notes[0]._id.toHexString() + '1';
+
+        request(app)
+            .get(`/loadNote/${id}`)
+            .expect(404)
+            .end(done);
     });
 });
 
