@@ -13,14 +13,16 @@ var notes = [{
     title: "How begin to programming?",
     text: "JUST CLAP YOUR FINGERS ON KEYBOARD AND DO NOT HESITATE!",
     author: "Przemysław Kłos",
-    date: new Date(2019, 1, 31)
+    date: new Date(2019, 1, 31),
+    //_createdBy: user1ID
 },
 {
     _id: note2ID,
     title: "How to have a rest?",
     text: "Less phone, more meetings with people. Less internet, more fresh air",
     author: "Przemysław Kłos",
-    date: new Date(2018, 12, 31)
+    date: new Date(2018, 12, 31),
+    //_createdBy: user2ID
 }];
 
 var users =[{

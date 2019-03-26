@@ -21,7 +21,8 @@ app.post('/addNote', (req, res) =>{
         title: req.body.title,
         text: req.body.text,
         author: req.body.author,
-        date: req.body.date
+        date: req.body.date,
+        //_createdBy: req.user._id
     });
 
     note.save().then((note)=>{
@@ -38,7 +39,7 @@ app.patch('/editNote/:id', (req, res)=>{
     var body = _.pick(req.body, ['author', 'title', 'text', 'date' ]);
 
     //save new body replacing current note
-    Notes.findByIdAndUpdate({_id: id}, {$set: body}, {new: true}).then((note)=>{
+    Notes.findByIdAndUpdate({_id: id /*_createdBy: req.user._id*/}, {$set: body}, {new: true}).then((note)=>{
         if(!note){
             return res.status(400).send();
         } 
@@ -54,7 +55,7 @@ app.delete('/deleteNote/:id', (req, res) =>{
         return res.status(400).send();
     }
 
-    Notes.findByIdAndRemove({_id: id}).then((note)=>{
+    Notes.findByIdAndRemove({_id: id, /*_createdBy: req.user._id*/}).then((note)=>{
         if(!note){
             return res.status(400).send();
         }
@@ -64,7 +65,7 @@ app.delete('/deleteNote/:id', (req, res) =>{
 });
 
 app.get('/loadNotes', (req, res)=>{
-    Notes.find({}).then((notes)=>{
+    Notes.find({/*_createdBy: req.user._id*/}).then((notes)=>{
         res.send({notes});
     }, (e) =>{
         res.status(400).send(e);
@@ -78,7 +79,10 @@ app.get('/loadNote/:id', (req, res)=>{
         return res.status(404).send();
     }
 
-    Notes.findOne({_id: id}).then((note)=>{
+    Notes.findOne({
+        _id: id,
+        //_createdBy: req.user._id
+    }).then((note)=>{
         if (!note){
             return res.status(404).send({});
         } 
@@ -87,6 +91,7 @@ app.get('/loadNote/:id', (req, res)=>{
     }).catch((e)=> res.status(400).send(e));
 });
 
+//============================================================
 //users
 app.post('/addUser', (req, res) =>{
     var body = _.pick(req.body, ['nick', 'email', 'password']);
@@ -131,27 +136,33 @@ app.delete('/deleteUser/:id', (req, res) =>{
     }).catch((e)=>res.status(400).send(e));
 });
 
+app.get('/loadUsers', (req, res)=>{
+    Users.find({/*_createdBy: req.user._id*/}).then((users)=>{
+        res.send({users});
+    }, (e) =>{
+        res.status(400).send(e);
+    });
+});
+
+app.get('/loadUser/:id', (req, res)=>{
+    var id = req.params.id;
+
+    if(!ObjectID.isValid(id)){
+        return res.status(404).send();
+    }
+
+    Users.findOne({_id: id}).then((user)=>{
+        if (!user){
+            return res.status(404).send({});
+        } 
+
+        res.send({user});
+    }).catch((e)=> res.status(400).send(e));
+});
+
 app.post('/user/login', (req, res)=>{
 
 });
-
-// app.get('/loadUser/:id', (req, res)=>{
-//     var id = req.params.id;
-
-//     if(!ObjectID.isValid(id)){
-//         return res.status(404).send();
-//     }
-
-//     Notes.findOne({_id: id}).then((note)=>{
-//         if (!note){
-//             return res.status(404).send({});
-//         } 
-
-//         res.send({note});
-//     }).catch((e)=> res.status(400).send(e));
-// });
-
-
 
 app.listen(port, () =>{
     console.log('Started at port: ', port);
