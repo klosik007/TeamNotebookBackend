@@ -93,6 +93,7 @@ app.get('/loadNote/:id', (req, res)=>{
 
 //============================================================
 //users
+//============================================================
 app.post('/addUser', (req, res) =>{
     var body = _.pick(req.body, ['nick', 'email', 'password']);
     var user = new Users(body);
@@ -110,7 +111,7 @@ app.patch('/editUser/:id', (req, res)=>{
 
     var body = _.pick(req.body, ['nick', 'email', 'password']);
 
-    //save new body replacing current note
+    //save new body replacing current user
     Users.findByIdAndUpdate({_id: id}, {$set: body}, {new: true}).then((user)=>{
         if(!user){
             return res.status(400).send();

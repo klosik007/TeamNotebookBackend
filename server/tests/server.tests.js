@@ -146,6 +146,137 @@ describe('GET /loadNote/:id', ()=>{
 
 //===========================================================
 //users
+//===========================================================
 
+describe('POST /addUser', ()=>{
+    it('should add new user', (done)=>{
+        var user = {
+            nick: "klosik007",
+            password: "hjj",
+            email: "pklos1992@gmail.com"
+        };
 
+        request(app)
+            .post('/addUser')
+            .send(user)
+            .expect(200)
+            .expect((res)=>{
+                expect(res.body.nick).toBe(user.nick);
+                expect(res.body.password).toBe(user.password);
+                expect(res.body.email).toBe(user.email);
+            })
+            .end((err, res)=>{
+                if(err){
+                    return done(err);
+                }
 
+                Users.find().then((user)=>{
+                    expect(user.length).toBe(3);
+                    expect(users[2].email).toBe(user.email);
+                    expect(users[2].nick).toBe(user.nick);
+                    expect(users[2].password).toBe(user.password);
+                    done();
+               });
+            })
+            .catch((e)=>done(e));
+    });
+});
+
+describe('PATCH /editUser/:id' ,()=>{
+    it('should edit user properties', (done)=>{
+        let id = users[1]._id.toHexString();
+        let originalNick = users[1].nick;
+        let originalEmail = users[1].email;
+        let originalPass = users[1].password;
+        let reqToSend = {nick: "klosik008", email: "pklos1992@o2.pl", password: "kkddjsa"};
+
+        request(app)
+            .patch(`/editUser/${id}`)
+            .send(reqToSend)
+            .expect(200)
+            .expect((res)=>{
+                expect(res.body.user.nick).not.toEqual(originalNick);
+                expect(res.body.user.email).not.toEqual(originalEmail);
+                expect(res.body.user.password).not.toEqual(originalPass);
+            })
+            .end(done);
+    });
+
+    it('should not update a note', (done)=>{
+        let id = users[0]._id.toHexString() + '1';
+        let reqToSend = {nick: "klosik008", email: "pklos1992@o2.pl", password: "kkddjsa"};
+
+        request(app)
+            .patch(`/editUser/${id}`)
+            .send(reqToSend)
+            .expect(400)
+            .end(done);
+    });
+});
+
+describe('DELETE /deleteUser/:id', ()=>{
+    it('should delete user with given id', (done)=>{
+        var id = users[1]._id.toHexString();
+
+        request(app)
+            .delete(`/deleteUser/${id}`)
+            .expect(200)
+            .expect((res)=>{
+                //expect(res.body.note._id).toBe(id);
+            })
+            .end((err, res)=>{
+                if(err){
+                    return done(err);
+                }
+
+                Users.findById(id).then((user)=>{
+                    expect(user).toBeFalsy();
+                    done();
+                }).catch((e)=>done(e));
+            });
+    });
+
+    it('should not delete note with given wrong id', (done)=>{
+        var id = users[1]._id.toHexString() + '1';
+
+        request(app)
+            .delete(`/deleteUser/${id}`)
+            .expect(400)
+            .end(done)
+    });
+});
+
+describe('GET /loadUsers', ()=>{
+    it('should load all users', (done)=>{
+        request(app)
+            .get('/loadUsers')
+            .expect(200)
+            .expect((res)=>{
+                expect(res.body.users.length).toBe(2);
+            })
+            .end(done);
+    });
+});
+
+describe('GET /loadUser/:id', ()=>{
+    it('should load user info with valid id', (done)=>{
+        var id = users[0]._id.toHexString();
+
+        request(app)
+            .get(`/loadUser/${id}`)
+            .expect(200)
+            .expect((res)=>{
+                expect(res.body.user.text).toBe(users[0].text);
+            })
+            .end(done);
+    });
+
+    it('should not load note with invalid id', (done)=>{
+        var id = users[0]._id.toHexString() + '1';
+
+        request(app)
+            .get(`/loadUser/${id}`)
+            .expect(404)
+            .end(done);
+    });
+});
