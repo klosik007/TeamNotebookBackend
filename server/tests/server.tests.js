@@ -150,20 +150,20 @@ describe('GET /loadNote/:id', ()=>{
 
 describe('POST /addUser', ()=>{
     it('should add new user', (done)=>{
-        var user = {
+        var user1 = {
             nick: "klosik007",
-            password: "hjj",
+            password: "hjjhhvfg",
             email: "pklos1992@gmail.com"
         };
 
         request(app)
             .post('/addUser')
-            .send(user)
+            .send(user1)
             .expect(200)
             .expect((res)=>{
-                expect(res.body.nick).toBe(user.nick);
-                expect(res.body.password).toBe(user.password);
-                expect(res.body.email).toBe(user.email);
+                expect(res.body.nick).toBe(user1.nick);
+                expect(res.body.password).toBe(user1.password);
+                expect(res.body.email).toBe(user1.email);
             })
             .end((err, res)=>{
                 if(err){
@@ -172,13 +172,12 @@ describe('POST /addUser', ()=>{
 
                 Users.find().then((user)=>{
                     expect(user.length).toBe(3);
-                    expect(users[2].email).toBe(user.email);
-                    expect(users[2].nick).toBe(user.nick);
-                    expect(users[2].password).toBe(user.password);
+                    expect(user[2].email).toBe(user1.email);
+                    expect(user[2].nick).toBe(user1.nick);
+                    expect(user[2].password).toBe(user1.password);
                     done();
-               });
-            })
-            .catch((e)=>done(e));
+               }).catch((e)=>done(e));
+            });
     });
 });
 

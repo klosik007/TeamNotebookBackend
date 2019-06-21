@@ -33,6 +33,7 @@ var UsersSchema = new mongoose.Schema({
     }]
 });
 
+//static functions
 
 var Users = mongoose.model('users', UsersSchema);
 module.exports = {Users};
